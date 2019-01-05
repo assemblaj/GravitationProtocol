@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	p2p "github.com/assemblaj/GravitationApplicationProtocol/pb"
+	p2p "github.com/assemblaj/GravitationProtocol/pb"
 	uuid "github.com/google/uuid"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
