@@ -36,6 +36,7 @@ func main() {
 	done := make(chan bool, 1)
 
 	// Make 2 hosts
+	// instead of DONE, pass in a funciton pointer.
 	h1 := makeRandomNode(port1, done)
 	h2 := makeRandomNode(port2, done)
 	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), ps.PermanentAddrTTL)
@@ -44,10 +45,9 @@ func main() {
 	log.Printf("This is a conversation between %s and %s\n", h1.ID(), h2.ID())
 
 	// send messages using the protocols
-	h1.Ping(h2.Host)
-	h2.Ping(h1.Host)
-	h1.Echo(h2.Host)
-	h2.Echo(h1.Host)
+	h1.Gravitation(h2.Host)
+
+	//h2.Gravitation(h1.Host)
 
 	// block until all responses have been processed
 	for i := 0; i < 4; i++ {

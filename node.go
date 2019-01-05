@@ -21,7 +21,6 @@ const clientVersion = "go-p2p-node/0.0.1"
 type Node struct {
 	host.Host     // lib-p2p host
 	*PingProtocol // ping protocol impl
-	*EchoProtocol // echo protocol impl
 	// add other protocols here...
 }
 
@@ -29,7 +28,6 @@ type Node struct {
 func NewNode(host host.Host, done chan bool) *Node {
 	node := &Node{Host: host}
 	node.PingProtocol = NewPingProtocol(node, done)
-	node.EchoProtocol = NewEchoProtocol(node, done)
 	return node
 }
 
