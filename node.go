@@ -19,8 +19,8 @@ const clientVersion = "go-p2p-node/0.0.1"
 
 // Node type - a p2p host implementing one or more p2p protocols
 type Node struct {
-	host.Host     // lib-p2p host
-	*PingProtocol // ping protocol impl
+	host.Host            // lib-p2p host
+	*GravitationProtocol // ping protocol impl
 	// add other protocols here...
 }
 
