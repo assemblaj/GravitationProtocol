@@ -3,9 +3,11 @@
 
 package protocols_p2p
 
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/gogo/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -37,7 +39,7 @@ func (m *MessageData) Reset()         { *m = MessageData{} }
 func (m *MessageData) String() string { return proto.CompactTextString(m) }
 func (*MessageData) ProtoMessage()    {}
 func (*MessageData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_p2p_c8fd4e6dd1b6d221, []int{0}
+	return fileDescriptor_e7fdddb109e6467a, []int{0}
 }
 func (m *MessageData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MessageData.Unmarshal(m, b)
@@ -45,8 +47,8 @@ func (m *MessageData) XXX_Unmarshal(b []byte) error {
 func (m *MessageData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MessageData.Marshal(b, m, deterministic)
 }
-func (dst *MessageData) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MessageData.Merge(dst, src)
+func (m *MessageData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MessageData.Merge(m, src)
 }
 func (m *MessageData) XXX_Size() int {
 	return xxx_messageInfo_MessageData.Size(m)
@@ -107,8 +109,8 @@ func (m *MessageData) GetSign() []byte {
 }
 
 // a protocol define a set of reuqest and responses
-type PingRequest struct {
-	MessageData *MessageData `protobuf:"bytes,1,opt,name=messageData" json:"messageData,omitempty"`
+type GravitationRequest struct {
+	MessageData *MessageData `protobuf:"bytes,1,opt,name=messageData,proto3" json:"messageData,omitempty"`
 	// method specific data
 	Message              string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -116,46 +118,46 @@ type PingRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PingRequest) Reset()         { *m = PingRequest{} }
-func (m *PingRequest) String() string { return proto.CompactTextString(m) }
-func (*PingRequest) ProtoMessage()    {}
-func (*PingRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_p2p_c8fd4e6dd1b6d221, []int{1}
+func (m *GravitationRequest) Reset()         { *m = GravitationRequest{} }
+func (m *GravitationRequest) String() string { return proto.CompactTextString(m) }
+func (*GravitationRequest) ProtoMessage()    {}
+func (*GravitationRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e7fdddb109e6467a, []int{1}
 }
-func (m *PingRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PingRequest.Unmarshal(m, b)
+func (m *GravitationRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GravitationRequest.Unmarshal(m, b)
 }
-func (m *PingRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PingRequest.Marshal(b, m, deterministic)
+func (m *GravitationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GravitationRequest.Marshal(b, m, deterministic)
 }
-func (dst *PingRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PingRequest.Merge(dst, src)
+func (m *GravitationRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GravitationRequest.Merge(m, src)
 }
-func (m *PingRequest) XXX_Size() int {
-	return xxx_messageInfo_PingRequest.Size(m)
+func (m *GravitationRequest) XXX_Size() int {
+	return xxx_messageInfo_GravitationRequest.Size(m)
 }
-func (m *PingRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_PingRequest.DiscardUnknown(m)
+func (m *GravitationRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GravitationRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PingRequest proto.InternalMessageInfo
+var xxx_messageInfo_GravitationRequest proto.InternalMessageInfo
 
-func (m *PingRequest) GetMessageData() *MessageData {
+func (m *GravitationRequest) GetMessageData() *MessageData {
 	if m != nil {
 		return m.MessageData
 	}
 	return nil
 }
 
-func (m *PingRequest) GetMessage() string {
+func (m *GravitationRequest) GetMessage() string {
 	if m != nil {
 		return m.Message
 	}
 	return ""
 }
 
-type PingResponse struct {
-	MessageData *MessageData `protobuf:"bytes,1,opt,name=messageData" json:"messageData,omitempty"`
+type GravitationResponse struct {
+	MessageData *MessageData `protobuf:"bytes,1,opt,name=messageData,proto3" json:"messageData,omitempty"`
 	// response specific data
 	Message              string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -163,133 +165,38 @@ type PingResponse struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PingResponse) Reset()         { *m = PingResponse{} }
-func (m *PingResponse) String() string { return proto.CompactTextString(m) }
-func (*PingResponse) ProtoMessage()    {}
-func (*PingResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_p2p_c8fd4e6dd1b6d221, []int{2}
+func (m *GravitationResponse) Reset()         { *m = GravitationResponse{} }
+func (m *GravitationResponse) String() string { return proto.CompactTextString(m) }
+func (*GravitationResponse) ProtoMessage()    {}
+func (*GravitationResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e7fdddb109e6467a, []int{2}
 }
-func (m *PingResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PingResponse.Unmarshal(m, b)
+func (m *GravitationResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GravitationResponse.Unmarshal(m, b)
 }
-func (m *PingResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PingResponse.Marshal(b, m, deterministic)
+func (m *GravitationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GravitationResponse.Marshal(b, m, deterministic)
 }
-func (dst *PingResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PingResponse.Merge(dst, src)
+func (m *GravitationResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GravitationResponse.Merge(m, src)
 }
-func (m *PingResponse) XXX_Size() int {
-	return xxx_messageInfo_PingResponse.Size(m)
+func (m *GravitationResponse) XXX_Size() int {
+	return xxx_messageInfo_GravitationResponse.Size(m)
 }
-func (m *PingResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_PingResponse.DiscardUnknown(m)
+func (m *GravitationResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GravitationResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PingResponse proto.InternalMessageInfo
+var xxx_messageInfo_GravitationResponse proto.InternalMessageInfo
 
-func (m *PingResponse) GetMessageData() *MessageData {
+func (m *GravitationResponse) GetMessageData() *MessageData {
 	if m != nil {
 		return m.MessageData
 	}
 	return nil
 }
 
-func (m *PingResponse) GetMessage() string {
-	if m != nil {
-		return m.Message
-	}
-	return ""
-}
-
-// a protocol define a set of reuqest and responses
-type EchoRequest struct {
-	MessageData *MessageData `protobuf:"bytes,1,opt,name=messageData" json:"messageData,omitempty"`
-	// method specific data
-	Message              string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *EchoRequest) Reset()         { *m = EchoRequest{} }
-func (m *EchoRequest) String() string { return proto.CompactTextString(m) }
-func (*EchoRequest) ProtoMessage()    {}
-func (*EchoRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_p2p_c8fd4e6dd1b6d221, []int{3}
-}
-func (m *EchoRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_EchoRequest.Unmarshal(m, b)
-}
-func (m *EchoRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_EchoRequest.Marshal(b, m, deterministic)
-}
-func (dst *EchoRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EchoRequest.Merge(dst, src)
-}
-func (m *EchoRequest) XXX_Size() int {
-	return xxx_messageInfo_EchoRequest.Size(m)
-}
-func (m *EchoRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_EchoRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EchoRequest proto.InternalMessageInfo
-
-func (m *EchoRequest) GetMessageData() *MessageData {
-	if m != nil {
-		return m.MessageData
-	}
-	return nil
-}
-
-func (m *EchoRequest) GetMessage() string {
-	if m != nil {
-		return m.Message
-	}
-	return ""
-}
-
-type EchoResponse struct {
-	MessageData *MessageData `protobuf:"bytes,1,opt,name=messageData" json:"messageData,omitempty"`
-	// response specific data
-	Message              string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *EchoResponse) Reset()         { *m = EchoResponse{} }
-func (m *EchoResponse) String() string { return proto.CompactTextString(m) }
-func (*EchoResponse) ProtoMessage()    {}
-func (*EchoResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_p2p_c8fd4e6dd1b6d221, []int{4}
-}
-func (m *EchoResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_EchoResponse.Unmarshal(m, b)
-}
-func (m *EchoResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_EchoResponse.Marshal(b, m, deterministic)
-}
-func (dst *EchoResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EchoResponse.Merge(dst, src)
-}
-func (m *EchoResponse) XXX_Size() int {
-	return xxx_messageInfo_EchoResponse.Size(m)
-}
-func (m *EchoResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_EchoResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EchoResponse proto.InternalMessageInfo
-
-func (m *EchoResponse) GetMessageData() *MessageData {
-	if m != nil {
-		return m.MessageData
-	}
-	return nil
-}
-
-func (m *EchoResponse) GetMessage() string {
+func (m *GravitationResponse) GetMessage() string {
 	if m != nil {
 		return m.Message
 	}
@@ -298,31 +205,28 @@ func (m *EchoResponse) GetMessage() string {
 
 func init() {
 	proto.RegisterType((*MessageData)(nil), "protocols.p2p.MessageData")
-	proto.RegisterType((*PingRequest)(nil), "protocols.p2p.PingRequest")
-	proto.RegisterType((*PingResponse)(nil), "protocols.p2p.PingResponse")
-	proto.RegisterType((*EchoRequest)(nil), "protocols.p2p.EchoRequest")
-	proto.RegisterType((*EchoResponse)(nil), "protocols.p2p.EchoResponse")
+	proto.RegisterType((*GravitationRequest)(nil), "protocols.p2p.GravitationRequest")
+	proto.RegisterType((*GravitationResponse)(nil), "protocols.p2p.GravitationResponse")
 }
 
-func init() { proto.RegisterFile("p2p.proto", fileDescriptor_p2p_c8fd4e6dd1b6d221) }
+func init() { proto.RegisterFile("p2p.proto", fileDescriptor_e7fdddb109e6467a) }
 
-var fileDescriptor_p2p_c8fd4e6dd1b6d221 = []byte{
-	// 261 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x8f, 0xb1, 0x4e, 0xc3, 0x30,
-	0x10, 0x86, 0xe5, 0xb6, 0xa4, 0xe4, 0xdc, 0x32, 0xdc, 0x80, 0x2c, 0x84, 0x50, 0x14, 0x31, 0x64,
-	0xca, 0x10, 0x56, 0x46, 0x18, 0x10, 0x42, 0xaa, 0x3c, 0xb0, 0xa7, 0xc9, 0x11, 0x2c, 0x35, 0xb6,
-	0xe9, 0xb9, 0x03, 0x0f, 0xc8, 0x7b, 0xa1, 0xba, 0x41, 0x4d, 0x1f, 0xa0, 0x4c, 0xbe, 0xff, 0xf3,
-	0xd9, 0xbf, 0x3e, 0x48, 0x7d, 0xe5, 0x4b, 0xbf, 0x75, 0xc1, 0xe1, 0x32, 0x1e, 0x8d, 0xdb, 0x70,
-	0xe9, 0x2b, 0x9f, 0xff, 0x08, 0x90, 0x6f, 0xc4, 0x5c, 0x77, 0xf4, 0x54, 0x87, 0x1a, 0xef, 0x61,
-	0xd9, 0x6c, 0x0c, 0xd9, 0xf0, 0x4e, 0x5b, 0x36, 0xce, 0x2a, 0x91, 0x89, 0x22, 0xd5, 0xa7, 0x10,
-	0x6f, 0x21, 0x0d, 0xa6, 0x27, 0x0e, 0x75, 0xef, 0xd5, 0x24, 0x13, 0xc5, 0x54, 0x1f, 0x01, 0x5e,
-	0xc1, 0xc4, 0xb4, 0x6a, 0x1a, 0x1f, 0x4e, 0x4c, 0x8b, 0xd7, 0x90, 0x74, 0x8e, 0xd9, 0x78, 0x35,
-	0xcb, 0x44, 0x71, 0xa9, 0x87, 0xb4, 0xe7, 0xd6, 0xb5, 0xf4, 0xd2, 0xaa, 0x8b, 0xb8, 0x3b, 0x24,
-	0xbc, 0x03, 0xd8, 0x4f, 0xab, 0xdd, 0xfa, 0x95, 0xbe, 0x55, 0x92, 0x89, 0x62, 0xa1, 0x47, 0x04,
-	0x11, 0x66, 0x6c, 0x3a, 0xab, 0xe6, 0xf1, 0x26, 0xce, 0x39, 0x81, 0x5c, 0x19, 0xdb, 0x69, 0xfa,
-	0xda, 0x11, 0x07, 0x7c, 0x04, 0xd9, 0x1f, 0xad, 0xa2, 0x84, 0xac, 0x6e, 0xca, 0x13, 0xf7, 0x72,
-	0xe4, 0xad, 0xc7, 0xeb, 0xa8, 0x60, 0x3e, 0xc4, 0x28, 0x97, 0xea, 0xbf, 0x98, 0x7f, 0xc0, 0xe2,
-	0x50, 0xc3, 0xde, 0x59, 0xa6, 0xb3, 0xf5, 0x10, 0xc8, 0xe7, 0xe6, 0xd3, 0xfd, 0x83, 0xce, 0xa1,
-	0xe6, 0xbc, 0x3a, 0xeb, 0x24, 0xfe, 0xf0, 0xf0, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xf4, 0x47, 0x02,
-	0x5e, 0x88, 0x02, 0x00, 0x00,
+var fileDescriptor_e7fdddb109e6467a = []byte{
+	// 254 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x90, 0xc1, 0x4a, 0xc4, 0x30,
+	0x10, 0x86, 0x49, 0x77, 0xed, 0xda, 0xa9, 0xeb, 0x61, 0x04, 0x09, 0x22, 0x52, 0x8a, 0x87, 0x9e,
+	0x7a, 0xa8, 0x57, 0x8f, 0x82, 0x88, 0x08, 0x92, 0x83, 0xf7, 0xec, 0x76, 0x28, 0x81, 0x36, 0x89,
+	0x9d, 0xac, 0xe0, 0x03, 0xfa, 0x5e, 0xb2, 0xa1, 0xb2, 0xed, 0x03, 0x78, 0xca, 0xfc, 0x5f, 0x26,
+	0x19, 0xbe, 0x81, 0xcc, 0x37, 0xbe, 0xf6, 0xa3, 0x0b, 0x0e, 0xb7, 0xf1, 0xd8, 0xbb, 0x9e, 0x6b,
+	0xdf, 0xf8, 0xf2, 0x47, 0x40, 0xfe, 0x46, 0xcc, 0xba, 0xa3, 0x27, 0x1d, 0x34, 0xde, 0xc3, 0x76,
+	0xdf, 0x1b, 0xb2, 0xe1, 0x83, 0x46, 0x36, 0xce, 0x4a, 0x51, 0x88, 0x2a, 0x53, 0x4b, 0x88, 0xb7,
+	0x90, 0x05, 0x33, 0x10, 0x07, 0x3d, 0x78, 0x99, 0x14, 0xa2, 0x5a, 0xa9, 0x13, 0xc0, 0x4b, 0x48,
+	0x4c, 0x2b, 0x57, 0xf1, 0x61, 0x62, 0x5a, 0xbc, 0x86, 0xb4, 0x73, 0xcc, 0xc6, 0xcb, 0x75, 0x21,
+	0xaa, 0x73, 0x35, 0xa5, 0x23, 0xb7, 0xae, 0xa5, 0x97, 0x56, 0x9e, 0xc5, 0xde, 0x29, 0xe1, 0x1d,
+	0xc0, 0xb1, 0x7a, 0x3f, 0xec, 0x5e, 0xe9, 0x5b, 0xa6, 0x85, 0xa8, 0x2e, 0xd4, 0x8c, 0x20, 0xc2,
+	0x9a, 0x4d, 0x67, 0xe5, 0x26, 0xde, 0xc4, 0xba, 0xec, 0x01, 0x9f, 0x47, 0xfd, 0x65, 0x82, 0x0e,
+	0xc6, 0x59, 0x45, 0x9f, 0x07, 0xe2, 0x80, 0x8f, 0x90, 0x0f, 0x27, 0xb9, 0xe8, 0x92, 0x37, 0x37,
+	0xf5, 0x62, 0x05, 0xf5, 0x4c, 0x5f, 0xcd, 0xdb, 0x51, 0xc2, 0x66, 0x8a, 0xd1, 0x31, 0x53, 0x7f,
+	0xb1, 0x1c, 0xe0, 0x6a, 0x31, 0x8d, 0xbd, 0xb3, 0x4c, 0xff, 0x35, 0x6e, 0x97, 0xc6, 0x1f, 0x1e,
+	0x7e, 0x03, 0x00, 0x00, 0xff, 0xff, 0x00, 0xf4, 0x0d, 0x4f, 0xc7, 0x01, 0x00, 0x00,
 }
