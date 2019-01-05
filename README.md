@@ -1,2 +1,2 @@
-# GrAP
-Gravitation Application Protocol 
+# GP
+Gravitation Protocol 
