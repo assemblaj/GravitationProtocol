@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	p2p "github.com/assemblaj/GravitationApplicationProtocol/pb"
 	"github.com/gogo/protobuf/proto"
 	crypto "github.com/libp2p/go-libp2p-crypto"
-	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
@@ -27,7 +27,7 @@ type Node struct {
 // Create a new node with its implemented protocols
 func NewNode(host host.Host, done chan bool) *Node {
 	node := &Node{Host: host}
-	node.PingProtocol = NewPingProtocol(node, done)
+	node.GravitationProtocol = NewGravitationProtocol(node, done)
 	return node
 }
 

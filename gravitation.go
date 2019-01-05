@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	p2p "github.com/assemblaj/GravitationApplicationProtocol/pb"
 	uuid "github.com/google/uuid"
-	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
