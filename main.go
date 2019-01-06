@@ -13,7 +13,7 @@ import (
 )
 
 // helper method - create a lib-p2p host to listen on a port
-func makeRandomNode(port int, done chan bool) *Node {
+func makeRandomNode(port int, done chan bool, profile []string, orbit []Body) *Node {
 	// Ignoring most errors for brevity
 	// See echo example for more details and better implementation
 	priv, _, _ := crypto.GenerateKeyPair(crypto.Secp256k1, 256)
@@ -24,10 +24,15 @@ func makeRandomNode(port int, done chan bool) *Node {
 		libp2p.Identity(priv),
 	)
 
-	return NewNode(host, done)
+	return NewNode(host, done, profile, []Body{})
 }
 
 func main() {
+	// TODO take from file or cli
+	const PROFILE_SIZE = 5
+	var profile = []string{"man", "artist", "programmer", "test", "test2"}
+
+	//
 	// Choose random ports between 10000-10100
 	rand.Seed(666)
 	port1 := rand.Intn(100) + 10000
@@ -45,7 +50,7 @@ func main() {
 	log.Printf("This is a conversation between %s and %s\n", h1.ID(), h2.ID())
 
 	// send messages using the protocols
-	h1.Gravitation(h2.Host)
+	h1.Gravitation(h2.Host, nil, nil)
 
 	//h2.Gravitation(h1.Host)
 

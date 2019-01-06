@@ -25,9 +25,9 @@ type Node struct {
 }
 
 // Create a new node with its implemented protocols
-func NewNode(host host.Host, done chan bool) *Node {
+func NewNode(host host.Host, done chan bool, profile []string, orbit []Body) *Node {
 	node := &Node{Host: host}
-	node.GravitationProtocol = NewGravitationProtocol(node, done)
+	node.GravitationProtocol = NewGravitationProtocol(node, done, profile, orbit)
 	return node
 }
 
