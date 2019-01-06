@@ -5,9 +5,8 @@ package protocols_p2p
 
 import (
 	fmt "fmt"
-	math "math"
-
 	proto "github.com/gogo/protobuf/proto"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -107,6 +106,16 @@ func (m *MessageData) GetSign() []byte {
 		return m.Sign
 	}
 	return nil
+}
+
+// a protocol define a set of reuqest and responses
+type GravitationRequest struct {
+	MessageData          *MessageData                   `protobuf:"bytes,1,opt,name=messageData,proto3" json:"messageData,omitempty"`
+	Profile              []*GravitationRequest_Profile  `protobuf:"bytes,2,rep,name=profile,proto3" json:"profile,omitempty"`
+	SubOrbit             []*GravitationRequest_SubOrbit `protobuf:"bytes,3,rep,name=sub_orbit,json=subOrbit,proto3" json:"sub_orbit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
+	XXX_unrecognized     []byte                         `json:"-"`
+	XXX_sizecache        int32                          `json:"-"`
 }
 
 func (m *GravitationRequest) Reset()         { *m = GravitationRequest{} }
