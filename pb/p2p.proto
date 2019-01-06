@@ -21,7 +21,16 @@ message GravitationRequest {
     MessageData messageData = 1;
 
     // method specific data
-    string message = 2;
+    message Profile {
+        string item = 1;
+    }
+    repeated Profile profile = 2;
+
+    message SubOrbit {
+       string peer_id = 1;
+       repeated Profile profile = 2;
+    } 
+    repeated SubOrbit sub_orbit = 3;
 
     // add any additional message data here....
 }
@@ -29,8 +38,17 @@ message GravitationRequest {
 message GravitationResponse {
     MessageData messageData = 1;
 
-    // response specific data
-    string message = 2;
+    // method specific data
+    message Profile {
+        string item = 1;
+    }
+    repeated Profile profile = 2;
+
+    message SubOrbit {
+       string peer_id = 1;
+       repeated Profile profile = 2;
+    } 
+    repeated SubOrbit sub_orbit = 3;
 
     // ... add any additional message data here....
 }
