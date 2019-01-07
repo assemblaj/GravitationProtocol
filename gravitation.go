@@ -85,7 +85,7 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 		return
 	}
 
-	log.Printf("%s: Received gravitation request from %s. Message: %s", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.Profile)
+	log.Printf("%s: Received gravitation request from %s. Profile: %s SubOrbit: %s.", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.Profile, data.SubOrbit)
 
 	valid := p.node.authenticateMessage(data, data.MessageData)
 
@@ -99,12 +99,19 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 	}
 
 	// generate response message
-	log.Printf("%s: Sending gravitation response to %s. Message id: %s...", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id)
+
 	suborbit := []*p2p.GravitationResponse_SubOrbit{}
+	for _, body := range p.orbit {
+		suborbit = append(suborbit, &(p2p.GravitationResponse_SubOrbit{
+			PeerId:  body.peerID,
+			Profile: body.profile}))
+	}
 
 	resp := &p2p.GravitationResponse{MessageData: p.node.NewMessageData(data.MessageData.Id, false),
-		Profile:  data.Profile,
+		Profile:  p.profile,
 		SubOrbit: suborbit}
+
+	log.Printf("%s: Sending gravitation response to %s. Message id: %s Profile: %s SubOrbit: %s....", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id, resp.Profile, resp.SubOrbit)
 
 	// sign the data
 	signature, err := p.node.signProtoMessage(resp)
@@ -160,7 +167,7 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 		return
 	}
 
-	log.Printf("%s: Received gravitation response from %s. Message id:%s. Message: %s.", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id, data.Profile)
+	log.Printf("%s: Received gravitation response from %s. Message id:%s. Profile: %s SubOrbit: %s.", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id, data.Profile, data.SubOrbit)
 	p.done <- true
 }
 
@@ -213,6 +220,6 @@ func (p *GravitationProtocol) Gravitation(host host.Host) bool {
 
 	// store ref request so response handler has access to it
 	p.requests[req.MessageData.Id] = req
-	log.Printf("%s: Gravitation to: %s was sent. Message Id: %s, Message: %s", p.node.ID(), host.ID(), req.MessageData.Id, req.Profile)
+	log.Printf("%s: Gravitation to: %s was sent. Message Id: %s, Profile: %s SubOrbit: %s", p.node.ID(), host.ID(), req.MessageData.Id, req.Profile, req.SubOrbit)
 	return true
 }
