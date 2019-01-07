@@ -19,6 +19,10 @@ import (
 const gravitationRequest = "/gravitation/gravitationreq/0.0.1"
 const gravitationResponse = "/gravitation/gravitationresp/0.0.1"
 
+// take in p2p.GravitationRequest, return true/false
+type gravitateReq func(profile []string, orbit []Body, data p2p.GravitationRequest) bool
+type gravitateRes func(profile []string, orbit []Body, data p2p.GravitationResponse) bool
+
 type Body struct {
 	peerID  string
 	profile []string
@@ -26,16 +30,14 @@ type Body struct {
 
 // GravitationProtocol type
 type GravitationProtocol struct {
-	node     *Node                              // local host
-	requests map[string]*p2p.GravitationRequest // used to access request data from response handlers
-	done     chan bool                          // only for demo purposes to stop main from terminating
-	profile  []string
-	orbit    []Body
+	node        *Node                              // local host
+	requests    map[string]*p2p.GravitationRequest // used to access request data from response handlers
+	done        chan bool                          // only for demo purposes to stop main from terminating
+	profile     []string
+	orbit       []Body
+	reqCallback gravitateReq
+	resCallback gravitateRes
 }
-
-// take in p2p.GravitationRequest, return true/false
-type gravitateReq func(profile []string, orbit []Body, data p2p.GravitationRequest) bool
-type gravitateRes func(profile []string, orbit []Body, data p2p.GravitationResponse) bool
 
 func gravitateIfEqualReq(profile []string, orbit []Body, data p2p.GravitationRequest) bool {
 	sort.Strings(profile)
@@ -151,11 +153,15 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 func (p *GravitationProtocol) Gravitation(host host.Host, reqCallback gravitateReq, resCallback gravitateRes) bool {
 
 	if reqCallback == nil {
-		reqCallback = gravitateIfEqualReq
+		p.reqCallback = gravitateIfEqualReq
+	} else {
+		p.reqCallback = reqCallback
 	}
 
 	if resCallback == nil {
-		resCallback = gravitateIfEqualRes
+		p.resCallback = gravitateIfEqualRes
+	} else {
+		p.resCallback = resCallback
 	}
 
 	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), host.ID())
