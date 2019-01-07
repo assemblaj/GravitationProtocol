@@ -30,8 +30,8 @@ func makeRandomNode(port int, done chan bool, profile []string, orbit []Body) *N
 func main() {
 	// TODO take from file or cli
 	const PROFILE_SIZE = 5
-	var profile = []string{"man", "artist", "programmer", "test", "test2"}
-
+	var profile1 = []string{"man", "artist", "programmer", "test", "test2"}
+	var profile2 = []string{"test2", "test3", "test4", "test5", "test6"}
 	//
 	// Choose random ports between 10000-10100
 	rand.Seed(666)
@@ -42,8 +42,8 @@ func main() {
 
 	// Make 2 hosts
 	// instead of DONE, pass in a funciton pointer.
-	h1 := makeRandomNode(port1, done, profile, []Body{})
-	h2 := makeRandomNode(port2, done, profile, []Body{})
+	h1 := makeRandomNode(port1, done, profile1, []Body{})
+	h2 := makeRandomNode(port2, done, profile2, []Body{})
 	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), ps.PermanentAddrTTL)
 	h2.Peerstore().AddAddrs(h1.ID(), h1.Addrs(), ps.PermanentAddrTTL)
 
