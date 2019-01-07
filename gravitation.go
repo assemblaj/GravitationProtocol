@@ -160,13 +160,17 @@ func (p *GravitationProtocol) Gravitation(host host.Host, reqCallback gravitateR
 
 	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), host.ID())
 
-	newprofile := []string{"hello world", "lifestyles"}
 	suborbit := []*p2p.GravitationRequest_SubOrbit{}
+	for _, body := range p.orbit {
+		suborbit = append(suborbit, &(p2p.GravitationRequest_SubOrbit{
+			PeerId:  body.peerID,
+			Profile: body.profile}))
+	}
 
 	// create message data
 	req := &p2p.GravitationRequest{
 		MessageData: p.node.NewMessageData(uuid.New().String(), false),
-		Profile:     newprofile,
+		Profile:     p.profile,
 		SubOrbit:    suborbit}
 
 	// sign the data
