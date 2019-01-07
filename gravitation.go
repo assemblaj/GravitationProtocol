@@ -53,7 +53,15 @@ func gravitateIfEqualRes(profile []string, orbit []Body, data p2p.GravitationRes
 
 // Create instance of protocol
 func NewGravitationProtocol(node *Node, done chan bool, profile []string, orbit []Body) *GravitationProtocol {
-	p := &GravitationProtocol{node: node, requests: make(map[string]*p2p.GravitationRequest), done: done}
+	p := &GravitationProtocol{
+		node:        node,
+		requests:    make(map[string]*p2p.GravitationRequest),
+		done:        done,
+		orbit:       orbit,
+		profile:     profile,
+		reqCallback: gravitateIfEqualReq,
+		resCallback: gravitateIfEqualRes}
+
 	node.SetStreamHandler(gravitationRequest, p.onGravitationRequest)
 	node.SetStreamHandler(gravitationResponse, p.onGravitationResponse)
 	return p
@@ -69,6 +77,10 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 	if err != nil {
 		log.Println(err)
 		return
+	}
+
+	if p.reqCallback(p.profile, p.orbit, *data) {
+		p.orbit = append(p.orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
 	}
 
 	log.Printf("%s: Received gravitation request from %s. Message: %s", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.Profile)
@@ -128,6 +140,10 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 		return
 	}
 
+	if p.resCallback(p.profile, p.orbit, *data) {
+		p.orbit = append(p.orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
+	}
+
 	// locate request data and remove it if found
 	_, ok := p.requests[data.MessageData.Id]
 	if ok {
@@ -150,19 +166,7 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 // orbit []Body:   Array that represents all the [planetary] 'bodies' in your orbit
 // reqCallback gravitateReq:  Validation rules for request (== by default)
 // resCallback gravitateRes:  Validaiton rules for response (== by default)
-func (p *GravitationProtocol) Gravitation(host host.Host, reqCallback gravitateReq, resCallback gravitateRes) bool {
-
-	if reqCallback == nil {
-		p.reqCallback = gravitateIfEqualReq
-	} else {
-		p.reqCallback = reqCallback
-	}
-
-	if resCallback == nil {
-		p.resCallback = gravitateIfEqualRes
-	} else {
-		p.resCallback = resCallback
-	}
+func (p *GravitationProtocol) Gravitation(host host.Host) bool {
 
 	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), host.ID())
 

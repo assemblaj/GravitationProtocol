@@ -50,7 +50,7 @@ func main() {
 	log.Printf("This is a conversation between %s and %s\n", h1.ID(), h2.ID())
 
 	// send messages using the protocols
-	h1.Gravitation(h2.Host, nil, nil)
+	h1.Gravitation(h2.Host)
 
 	//h2.Gravitation(h1.Host)
 
