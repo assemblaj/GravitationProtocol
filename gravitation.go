@@ -80,10 +80,11 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 
 	// generate response message
 	log.Printf("%s: Sending gravitation response to %s. Message id: %s...", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id)
+	suborbit := []*p2p.GravitationResponse_SubOrbit{}
 
 	resp := &p2p.GravitationResponse{MessageData: p.node.NewMessageData(data.MessageData.Id, false),
 		Profile:  data.Profile,
-		SubOrbit: data.SubOrbit}
+		SubOrbit: suborbit}
 
 	// sign the data
 	signature, err := p.node.signProtoMessage(resp)
@@ -159,10 +160,14 @@ func (p *GravitationProtocol) Gravitation(host host.Host, reqCallback gravitateR
 
 	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), host.ID())
 
+	newprofile := []string{"hello world", "lifestyles"}
+	suborbit := []*p2p.GravitationRequest_SubOrbit{}
+
 	// create message data
-	req := &p2p.GravitationRequest{MessageData: p.node.NewMessageData(uuid.New().String(), false),
-		Profile:  profile,
-		SubOrbit: orbit}
+	req := &p2p.GravitationRequest{
+		MessageData: p.node.NewMessageData(uuid.New().String(), false),
+		Profile:     newprofile,
+		SubOrbit:    suborbit}
 
 	// sign the data
 	signature, err := p.node.signProtoMessage(req)
@@ -188,6 +193,6 @@ func (p *GravitationProtocol) Gravitation(host host.Host, reqCallback gravitateR
 
 	// store ref request so response handler has access to it
 	p.requests[req.MessageData.Id] = req
-	log.Printf("%s: Gravitation to: %s was sent. Message Id: %s, Message: %s", p.node.ID(), host.ID(), req.MessageData.Id, req.Message)
+	log.Printf("%s: Gravitation to: %s was sent. Message Id: %s, Message: %s", p.node.ID(), host.ID(), req.MessageData.Id, req.Profile)
 	return true
 }

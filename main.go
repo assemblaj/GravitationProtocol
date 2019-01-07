@@ -42,8 +42,8 @@ func main() {
 
 	// Make 2 hosts
 	// instead of DONE, pass in a funciton pointer.
-	h1 := makeRandomNode(port1, done)
-	h2 := makeRandomNode(port2, done)
+	h1 := makeRandomNode(port1, done, profile, []Body{})
+	h2 := makeRandomNode(port2, done, profile, []Body{})
 	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), ps.PermanentAddrTTL)
 	h2.Peerstore().AddAddrs(h1.ID(), h1.Addrs(), ps.PermanentAddrTTL)
 
