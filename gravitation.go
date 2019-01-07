@@ -40,15 +40,21 @@ type GravitationProtocol struct {
 }
 
 func gravitateIfEqualReq(profile []string, orbit []Body, data p2p.GravitationRequest) bool {
+	remoteProfile := make([]string, len(profile))
+	copy(remoteProfile, data.Profile)
+
 	sort.Strings(profile)
-	sort.Strings(data.Profile)
-	return reflect.DeepEqual(profile, data.Profile)
+	sort.Strings(remoteProfile)
+	return reflect.DeepEqual(profile, remoteProfile)
 }
 
 func gravitateIfEqualRes(profile []string, orbit []Body, data p2p.GravitationResponse) bool {
+	remoteProfile := make([]string, len(profile))
+	copy(remoteProfile, data.Profile)
+
 	sort.Strings(profile)
-	sort.Strings(data.Profile)
-	return reflect.DeepEqual(profile, data.Profile)
+	sort.Strings(remoteProfile)
+	return reflect.DeepEqual(profile, remoteProfile)
 }
 
 // Create instance of protocol
@@ -79,10 +85,6 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 		return
 	}
 
-	if p.reqCallback(p.profile, p.orbit, *data) {
-		p.orbit = append(p.orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
-	}
-
 	log.Printf("%s: Received gravitation request from %s. Message: %s", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.Profile)
 
 	valid := p.node.authenticateMessage(data, data.MessageData)
@@ -90,6 +92,10 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 	if !valid {
 		log.Println("Failed to authenticate message")
 		return
+	}
+
+	if p.reqCallback(p.profile, p.orbit, *data) {
+		p.orbit = append(p.orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
 	}
 
 	// generate response message
