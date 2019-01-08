@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"reflect"
 	"sort"
@@ -28,13 +30,17 @@ type Body struct {
 	profile []string
 }
 
+type GravitationData struct {
+	Profile []string
+	Orbit   []Body
+}
+
 // GravitationProtocol type
 type GravitationProtocol struct {
 	node        *Node                              // local host
 	requests    map[string]*p2p.GravitationRequest // used to access request data from response handlers
 	done        chan bool                          // only for demo purposes to stop main from terminating
-	profile     []string
-	orbit       []Body
+	gravData    GravitationData
 	reqCallback gravitateReq
 	resCallback gravitateRes
 }
@@ -57,14 +63,15 @@ func gravitateIfEqualRes(profile []string, orbit []Body, data p2p.GravitationRes
 	return reflect.DeepEqual(profile, remoteProfile)
 }
 
-// Create instance of protocol
+// NewGravitationProtocol Create instance of protocol
 func NewGravitationProtocol(node *Node, done chan bool, profile []string, orbit []Body) *GravitationProtocol {
 	p := &GravitationProtocol{
-		node:        node,
-		requests:    make(map[string]*p2p.GravitationRequest),
-		done:        done,
-		orbit:       orbit,
-		profile:     profile,
+		node:     node,
+		requests: make(map[string]*p2p.GravitationRequest),
+		done:     done,
+		gravData: GravitationData{
+			Orbit:   orbit,
+			Profile: profile},
 		reqCallback: gravitateIfEqualReq,
 		resCallback: gravitateIfEqualRes}
 
@@ -94,21 +101,21 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 		return
 	}
 
-	if p.reqCallback(p.profile, p.orbit, *data) {
-		p.orbit = append(p.orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
+	if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, *data) {
+		p.gravData.Orbit = append(p.gravData.Orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
 	}
 
 	// generate response message
 
 	suborbit := []*p2p.GravitationResponse_SubOrbit{}
-	for _, body := range p.orbit {
+	for _, body := range p.gravData.Orbit {
 		suborbit = append(suborbit, &(p2p.GravitationResponse_SubOrbit{
 			PeerId:  body.peerID,
 			Profile: body.profile}))
 	}
 
 	resp := &p2p.GravitationResponse{MessageData: p.node.NewMessageData(data.MessageData.Id, false),
-		Profile:  p.profile,
+		Profile:  p.gravData.Profile,
 		SubOrbit: suborbit}
 
 	log.Printf("%s: Sending gravitation response to %s. Message id: %s Profile: %s SubOrbit: %s....", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id, resp.Profile, resp.SubOrbit)
@@ -153,8 +160,8 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 		return
 	}
 
-	if p.resCallback(p.profile, p.orbit, *data) {
-		p.orbit = append(p.orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
+	if p.resCallback(p.gravData.Profile, p.gravData.Orbit, *data) {
+		p.gravData.Orbit = append(p.gravData.Orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
 	}
 
 	// locate request data and remove it if found
@@ -171,6 +178,31 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 	p.done <- true
 }
 
+func (p *GravitationProtocol) readGravData(fname string) {
+	b, err := ioutil.ReadFile(fname)
+	if err != nil {
+		log.Println("Error reading data from file. ")
+	}
+	err = json.Unmarshal(b, &p.gravData)
+	if err != nil {
+		log.Println("Error loading data. ")
+	}
+}
+
+func (p *GravitationProtocol) writeGravData(fname string) {
+	b, err := json.Marshal(p.gravData)
+	if err != nil {
+		log.Println("Error converting to JSON. ")
+	}
+	log.Printf("%s", p.gravData)
+	err = ioutil.WriteFile(fname, b, 0644)
+	if err != nil {
+		log.Println("Error writing data to file. ")
+	}
+	log.Println("data written to file. ")
+
+}
+
 // Gravitation funciton
 // Performs gravitation
 // Takes:
@@ -180,11 +212,10 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 // reqCallback gravitateReq:  Validation rules for request (== by default)
 // resCallback gravitateRes:  Validaiton rules for response (== by default)
 func (p *GravitationProtocol) Gravitation(host host.Host) bool {
-
 	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), host.ID())
 
 	suborbit := []*p2p.GravitationRequest_SubOrbit{}
-	for _, body := range p.orbit {
+	for _, body := range p.gravData.Orbit {
 		suborbit = append(suborbit, &(p2p.GravitationRequest_SubOrbit{
 			PeerId:  body.peerID,
 			Profile: body.profile}))
@@ -193,7 +224,7 @@ func (p *GravitationProtocol) Gravitation(host host.Host) bool {
 	// create message data
 	req := &p2p.GravitationRequest{
 		MessageData: p.node.NewMessageData(uuid.New().String(), false),
-		Profile:     p.profile,
+		Profile:     p.gravData.Profile,
 		SubOrbit:    suborbit}
 
 	// sign the data
