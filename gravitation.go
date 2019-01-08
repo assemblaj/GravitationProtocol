@@ -22,8 +22,8 @@ const gravitationRequest = "/gravitation/gravitationreq/0.0.1"
 const gravitationResponse = "/gravitation/gravitationresp/0.0.1"
 
 // take in p2p.GravitationRequest, return true/false
-type gravitateReq func(profile []string, orbit []Body, data p2p.GravitationRequest) bool
-type gravitateRes func(profile []string, orbit []Body, data p2p.GravitationResponse) bool
+type gravitateReq func(profile []string, orbit []Body, remoteBody Body) bool
+type gravitateRes func(profile []string, orbit []Body, remoteBody Body) bool
 
 type Body struct {
 	peerID  string
@@ -45,18 +45,18 @@ type GravitationProtocol struct {
 	resCallback gravitateRes
 }
 
-func gravitateIfEqualReq(profile []string, orbit []Body, data p2p.GravitationRequest) bool {
+func gravitateIfEqualReq(profile []string, orbit []Body, remoteBody Body) bool {
 	remoteProfile := make([]string, len(profile))
-	copy(remoteProfile, data.Profile)
+	copy(remoteProfile, remoteBody.profile)
 
 	sort.Strings(profile)
 	sort.Strings(remoteProfile)
 	return reflect.DeepEqual(profile, remoteProfile)
 }
 
-func gravitateIfEqualRes(profile []string, orbit []Body, data p2p.GravitationResponse) bool {
+func gravitateIfEqualRes(profile []string, orbit []Body, remoteBody Body) bool {
 	remoteProfile := make([]string, len(profile))
-	copy(remoteProfile, data.Profile)
+	copy(remoteProfile, remoteBody.profile)
 
 	sort.Strings(profile)
 	sort.Strings(remoteProfile)
@@ -101,12 +101,23 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 		return
 	}
 
-	if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, *data) {
-		p.gravData.Orbit = append(p.gravData.Orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
+	// For validating . Seeing if we want these in our orbit
+	remoteBody := Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile}
+	if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
+		p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+	}
+
+	// Checking suborbit
+	for _, body := range data.SubOrbit {
+		remoteBody := Body{
+			peerID: body.PeerId, profile: body.Profile}
+		if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
+			p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+		}
 	}
 
 	// generate response message
-
+	// Giving them our orbit
 	suborbit := []*p2p.GravitationResponse_SubOrbit{}
 	for _, body := range p.gravData.Orbit {
 		suborbit = append(suborbit, &(p2p.GravitationResponse_SubOrbit{
@@ -160,8 +171,19 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 		return
 	}
 
-	if p.resCallback(p.gravData.Profile, p.gravData.Orbit, *data) {
-		p.gravData.Orbit = append(p.gravData.Orbit, Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile})
+	// For validating . Seeing if we want these in our orbit
+	remoteBody := Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile}
+	if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
+		p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+	}
+
+	// Checking suborbit
+	for _, body := range data.SubOrbit {
+		remoteBody := Body{
+			peerID: body.PeerId, profile: body.Profile}
+		if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
+			p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+		}
 	}
 
 	// locate request data and remove it if found
