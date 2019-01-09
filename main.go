@@ -2,9 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
+	"reflect"
+	"sort"
+	"time"
 
 	libp2p "github.com/libp2p/go-libp2p"
 	crypto "github.com/libp2p/go-libp2p-crypto"
@@ -22,12 +27,107 @@ func makeRandomNode(port int, done chan bool, profile []string, orbit []Body) *N
 		context.Background(),
 		libp2p.ListenAddrs(listen),
 		libp2p.Identity(priv),
+		libp2p.DisableRelay(),
 	)
 
 	return NewNode(host, done, profile, []Body{})
 }
 
+type TestData struct {
+	TestNetwork map[string][]string
+	TestOrbit   []string
+}
+
+func testGravitation(fname string) bool {
+	// Read test data from file
+	testConfig := TestData{}
+	b, err := ioutil.ReadFile(fname)
+	if err != nil {
+		log.Println("Error reading data from file. ")
+	}
+	err = json.Unmarshal(b, &testConfig)
+
+	if err != nil {
+		log.Println("Error loading data. ")
+	}
+
+	done := make(chan bool, 1)
+
+	// Set up test network
+	hostMap := make(map[string]*Node)
+	orbitPeerIds := []string{}
+	for k, v := range testConfig.TestNetwork {
+		rand.Seed(666)
+		port := rand.Intn(100) + 10000
+
+		if _, exist := hostMap[k]; !exist {
+			// rand.Seed(666)
+			// port := rand.Intn(100) + 10000
+			profile := time.Now().Format("20060102150405")
+
+			hostMap[k] = makeRandomNode(port, done, []string{profile}, []Body{})
+		}
+		for _, peer := range v {
+
+			if _, exist := hostMap[peer]; !exist {
+				rand.Seed(666)
+				newPort := port + 1
+
+				testProfile := []string{"z"}
+				inOrbit := false
+
+				// if part of orbit
+				for _, hostName := range testConfig.TestOrbit {
+					if hostName == peer {
+						inOrbit = true
+						testProfile = hostMap[k].gravData.Profile
+					}
+				}
+
+				// Creates host and creates peer relationship between it and the root peer
+				hostMap[peer] = makeRandomNode(newPort, done, testProfile, []Body{})
+				if inOrbit {
+					orbitPeerIds = append(orbitPeerIds, hostMap[peer].ID().String())
+				}
+				hostMap[k].Peerstore().AddAddrs(hostMap[peer].ID(), hostMap[peer].Addrs(), ps.PermanentAddrTTL)
+				hostMap[peer].Peerstore().AddAddrs(hostMap[k].ID(), hostMap[k].Addrs(), ps.PermanentAddrTTL)
+				log.Printf("This is a conversation between %s and %s\n", hostMap[k].ID(), hostMap[peer].ID())
+
+				// Perform gravitation
+				hostMap[k].Gravitation(hostMap[peer].Host)
+
+			}
+		}
+	}
+	time.Sleep(2 * time.Second)
+
+	actualOrbitIds := []string{}
+	for _, data := range hostMap["A"].gravData.Orbit {
+		actualOrbitIds = append(actualOrbitIds, data.peerID)
+	}
+	log.Println()
+	log.Println(actualOrbitIds)
+	log.Println(orbitPeerIds)
+	log.Println()
+
+	sort.Strings(actualOrbitIds)
+	sort.Strings(orbitPeerIds)
+
+	for i := 0; i < 4; i++ {
+		<-done
+	}
+
+	return reflect.DeepEqual(actualOrbitIds, orbitPeerIds)
+}
+
 func main() {
+	if testGravitation("test.json") {
+		log.Println("It worked!")
+	} else {
+		log.Println("Not quite!")
+	}
+
+	return
 	// TODO take from file or cli
 	const PROFILE_SIZE = 5
 	var profile1 = []string{"man", "artist", "programmer", "test", "test2"}

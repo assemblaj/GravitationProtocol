@@ -91,6 +91,7 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 		log.Println(err)
 		return
 	}
+	localPeerID := s.Conn().LocalPeer().String()
 
 	log.Printf("%s: Received gravitation request from %s. Profile: %s SubOrbit: %s.", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.Profile, data.SubOrbit)
 
@@ -103,16 +104,26 @@ func (p *GravitationProtocol) onGravitationRequest(s inet.Stream) {
 
 	// For validating . Seeing if we want these in our orbit
 	remoteBody := Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile}
-	if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
-		p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+	if !p.inOrbit(remoteBody.peerID) {
+		if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
+			p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+			log.Printf("%s accpted. From request at %s", remoteBody.peerID, s.Conn().LocalPeer())
+		}
 	}
 
 	// Checking suborbit
 	for _, body := range data.SubOrbit {
+		if body.PeerId == localPeerID {
+			continue
+		}
+		if p.inOrbit(body.PeerId) {
+			continue
+		}
 		remoteBody := Body{
 			peerID: body.PeerId, profile: body.Profile}
 		if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
 			p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+			log.Printf("%s accpted. From request at %s", remoteBody.peerID, s.Conn().LocalPeer())
 		}
 	}
 
@@ -163,6 +174,7 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 	if err != nil {
 		return
 	}
+	localPeerID := s.Conn().LocalPeer().String()
 
 	valid := p.node.authenticateMessage(data, data.MessageData)
 
@@ -173,16 +185,27 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 
 	// For validating . Seeing if we want these in our orbit
 	remoteBody := Body{peerID: s.Conn().RemotePeer().String(), profile: data.Profile}
-	if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
-		p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+	if !p.inOrbit(remoteBody.peerID) {
+		if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
+			p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+			log.Printf("%s accpted. From response at %s", remoteBody.peerID, s.Conn().LocalPeer())
+		}
 	}
 
 	// Checking suborbit
 	for _, body := range data.SubOrbit {
+		if body.PeerId == localPeerID {
+			continue
+		}
+		if p.inOrbit(body.PeerId) {
+			continue
+		}
+
 		remoteBody := Body{
 			peerID: body.PeerId, profile: body.Profile}
 		if p.reqCallback(p.gravData.Profile, p.gravData.Orbit, remoteBody) {
 			p.gravData.Orbit = append(p.gravData.Orbit, remoteBody)
+			log.Printf("%s accpted. From response at %s", remoteBody.peerID, s.Conn().LocalPeer())
 		}
 	}
 
@@ -223,6 +246,15 @@ func (p *GravitationProtocol) writeGravData(fname string) {
 	}
 	log.Println("data written to file. ")
 
+}
+
+func (p *GravitationProtocol) inOrbit(peerID string) bool {
+	for _, body := range p.gravData.Orbit {
+		if body.peerID == peerID {
+			return true
+		}
+	}
+	return false
 }
 
 // Gravitation funciton
