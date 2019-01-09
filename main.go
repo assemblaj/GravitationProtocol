@@ -37,6 +37,7 @@ func makeRandomNode(port int, done chan bool, profile []string, orbit []Body) *N
 type TestData struct {
 	TestNetwork map[string][]string
 	TestOrbit   []string
+	TestingOn   string
 }
 
 func testGravitation(fname string) bool {
@@ -102,7 +103,7 @@ func testGravitation(fname string) bool {
 	time.Sleep(2 * time.Second)
 
 	actualOrbitIds := []string{}
-	for _, data := range hostMap["A"].gravData.Orbit {
+	for _, data := range hostMap[testConfig.TestingOn].gravData.Orbit {
 		actualOrbitIds = append(actualOrbitIds, data.peerID)
 	}
 
