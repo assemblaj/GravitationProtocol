@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -61,10 +62,7 @@ func testGravitation(fname string) bool {
 		port := rand.Intn(100) + 10000
 
 		if _, exist := hostMap[k]; !exist {
-			// rand.Seed(666)
-			// port := rand.Intn(100) + 10000
 			profile := time.Now().Format("20060102150405")
-
 			hostMap[k] = makeRandomNode(port, done, []string{profile}, []Body{})
 		}
 		for _, peer := range v {
@@ -73,7 +71,7 @@ func testGravitation(fname string) bool {
 				rand.Seed(666)
 				newPort := port + 1
 
-				testProfile := []string{"z"}
+				testProfile := []string{"test"}
 				inOrbit := false
 
 				// if part of orbit
@@ -99,16 +97,14 @@ func testGravitation(fname string) bool {
 			}
 		}
 	}
+
+	// Waits for process to finish
 	time.Sleep(2 * time.Second)
 
 	actualOrbitIds := []string{}
 	for _, data := range hostMap["A"].gravData.Orbit {
 		actualOrbitIds = append(actualOrbitIds, data.peerID)
 	}
-	log.Println()
-	log.Println(actualOrbitIds)
-	log.Println(orbitPeerIds)
-	log.Println()
 
 	sort.Strings(actualOrbitIds)
 	sort.Strings(orbitPeerIds)
@@ -120,42 +116,32 @@ func testGravitation(fname string) bool {
 	return reflect.DeepEqual(actualOrbitIds, orbitPeerIds)
 }
 
+const help = `
+Creates Gravitation protocol instance. 
+Usage: 
+./GravitationProtocol 
+  - runs default gravitation test 
+./GravitationProtocol -t testfile 
+  - runs a gravitation protocol test with given test file 
+`
+
 func main() {
-	if testGravitation("test.json") {
-		log.Println("It worked!")
-	} else {
-		log.Println("Not quite!")
+	flag.Usage = func() {
+		fmt.Println(help)
+		flag.PrintDefaults()
 	}
 
-	return
-	// TODO take from file or cli
-	const PROFILE_SIZE = 5
-	var profile1 = []string{"man", "artist", "programmer", "test", "test2"}
-	var profile2 = []string{"test2", "test3", "test4", "test5", "test6"}
-	//
-	// Choose random ports between 10000-10100
-	rand.Seed(666)
-	port1 := rand.Intn(100) + 10000
-	port2 := port1 + 1
+	// Parse some flags
+	testFile := flag.String("t", "", "Test File")
+	flag.Parse()
 
-	done := make(chan bool, 1)
-
-	// Make 2 hosts
-	// instead of DONE, pass in a funciton pointer.
-	h1 := makeRandomNode(port1, done, profile1, []Body{})
-	h2 := makeRandomNode(port2, done, profile2, []Body{})
-	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), ps.PermanentAddrTTL)
-	h2.Peerstore().AddAddrs(h1.ID(), h1.Addrs(), ps.PermanentAddrTTL)
-
-	log.Printf("This is a conversation between %s and %s\n", h1.ID(), h2.ID())
-
-	// send messages using the protocols
-	h1.Gravitation(h2.Host)
-
-	//h2.Gravitation(h1.Host)
-
-	// block until all responses have been processed
-	for i := 0; i < 4; i++ {
-		<-done
+	if *testFile != "" {
+		if testGravitation(*testFile) {
+			log.Println("Test successful!")
+		} else {
+			log.Println("Test failed.")
+		}
+	} else {
+		testGravitation("test.json")
 	}
 }
