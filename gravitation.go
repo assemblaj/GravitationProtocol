@@ -14,6 +14,7 @@ import (
 	uuid "github.com/google/uuid"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
+	peer "github.com/libp2p/go-libp2p-peer"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
@@ -257,16 +258,8 @@ func (p *GravitationProtocol) inOrbit(peerID string) bool {
 	return false
 }
 
-// Gravitation funciton
-// Performs gravitation
-// Takes:
-// host host.Host:
-// profile []string:  Array that represents the host's properties
-// orbit []Body:   Array that represents all the [planetary] 'bodies' in your orbit
-// reqCallback gravitateReq:  Validation rules for request (== by default)
-// resCallback gravitateRes:  Validaiton rules for response (== by default)
-func (p *GravitationProtocol) Gravitation(host host.Host) bool {
-	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), host.ID())
+func (p *GravitationProtocol) GravitationPeerID(hostPeerID peer.ID) bool {
+	log.Printf("%s: Sending gravitation to: %s....", p.node.ID(), hostPeerID)
 
 	suborbit := []*p2p.GravitationRequest_SubOrbit{}
 	for _, body := range p.gravData.Orbit {
@@ -291,7 +284,7 @@ func (p *GravitationProtocol) Gravitation(host host.Host) bool {
 	// add the signature to the message
 	req.MessageData.Sign = signature
 
-	s, err := p.node.NewStream(context.Background(), host.ID(), gravitationRequest)
+	s, err := p.node.NewStream(context.Background(), hostPeerID, gravitationRequest)
 	if err != nil {
 		log.Println(err)
 		return false
@@ -305,6 +298,19 @@ func (p *GravitationProtocol) Gravitation(host host.Host) bool {
 
 	// store ref request so response handler has access to it
 	p.requests[req.MessageData.Id] = req
-	log.Printf("%s: Gravitation to: %s was sent. Message Id: %s, Profile: %s SubOrbit: %s", p.node.ID(), host.ID(), req.MessageData.Id, req.Profile, req.SubOrbit)
+	log.Printf("%s: Gravitation to: %s was sent. Message Id: %s, Profile: %s SubOrbit: %s", p.node.ID(), hostPeerID, req.MessageData.Id, req.Profile, req.SubOrbit)
 	return true
+
+}
+
+// Gravitation funciton
+// Performs gravitation
+// Takes:
+// host host.Host:
+// profile []string:  Array that represents the host's properties
+// orbit []Body:   Array that represents all the [planetary] 'bodies' in your orbit
+// reqCallback gravitateReq:  Validation rules for request (== by default)
+// resCallback gravitateRes:  Validaiton rules for response (== by default)
+func (p *GravitationProtocol) Gravitation(host host.Host) bool {
+	return p.GravitationPeerID(host.ID())
 }
