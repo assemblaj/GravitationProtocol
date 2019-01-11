@@ -1,3 +1,8 @@
+// From: github.com/libp2p/go-libp2p-examples/blob/master/chat-with-rendezvous/flags.go
+// Authors
+// Abhishek Upperwal
+// Mantas Vidutis
+
 package main
 
 import (
