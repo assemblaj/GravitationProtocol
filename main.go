@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -124,13 +125,13 @@ func testGravitation(fname string) bool {
 func gravitationRendezvous(profile []string, orbit []Body) {
 	done := make(chan bool, 1)
 
-	ctx := context.Background()
-	//host := makeRandomNode(port, done, []string{profile}, []Body{})
-
 	config, err := ParseFlags()
 	if err != nil {
 		panic(err)
 	}
+
+	ctx := context.Background()
+	//host := makeRandomNode(port, done, []string{profile}, []Body{})
 
 	// libp2p.New constructs a new libp2p Host. Other options can be added
 	// here.
@@ -206,7 +207,7 @@ func gravitationRendezvous(profile []string, orbit []Body) {
 
 		log.Println("Connecting to:", peer)
 		//stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
-		go node.GravitationPeerID(peer.ID)
+		node.GravitationPeerID(peer.ID)
 
 		log.Println("Connected to:", peer)
 	}
@@ -230,19 +231,19 @@ func main() {
 	// }
 
 	// // Parse some flags
-	// testFile := flag.String("t", "", "Test File")
-	// flag.Parse()
+	testFile := flag.String("t", "", "Test File")
+	flag.Parse()
 
-	// if *testFile != "" {
-	// 	if testGravitation(*testFile) {
-	// 		log.Println("Test successful!")
-	// 	} else {
-	// 		log.Println("Test failed.")
-	// 	}
-	// } else {
-	profile := []string{"test", "test2", "test3"}
-	orbit := []Body{}
-	gravitationRendezvous(profile, orbit)
-	// }
+	if *testFile != "" {
+		if testGravitation(*testFile) {
+			log.Println("Test successful!")
+		} else {
+			log.Println("Test failed.")
+		}
+	} else {
+		profile := []string{"test", "test2", "test3"}
+		orbit := []Body{}
+		gravitationRendezvous(profile, orbit)
+	}
 
 }
