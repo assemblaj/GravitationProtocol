@@ -1,9 +1,15 @@
+/*
+   TODO:
+   - Save / Load feature
+	 - flags
+	 - load on startup
+	 - save on quit (CTRL-C / SIGTERM)
+*/
 package main
 
 import (
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -126,13 +132,8 @@ func testGravitation(fname string) bool {
 	return reflect.DeepEqual(actualOrbitIds, orbitPeerIds)
 }
 
-func gravitationRendezvous(profile []string, orbit []Body) {
+func gravitationRendezvous(config Config, profile []string, orbit []Body) {
 	done := make(chan bool, 1)
-
-	config, err := ParseFlags()
-	if err != nil {
-		panic(err)
-	}
 
 	ctx := context.Background()
 	//host := makeRandomNode(port, done, []string{profile}, []Body{})
@@ -153,6 +154,9 @@ func gravitationRendezvous(profile []string, orbit []Body) {
 	}
 
 	node := NewNode(host, done, profile, []Body{})
+	if config.LoadFile != "" {
+		node.readGravData(config.LoadFile)
+	}
 
 	// ----------------------------
 	// Start a DHT, for use in peer discovery. We can't just make a new DHT
@@ -237,9 +241,11 @@ func main() {
 	// }
 
 	// // Parse some flags
-	testFile := flag.String("t", "", "Test File")
-	saveFile := flag.String("save", "", "File to save data.")
-	flag.Parse()
+
+	config, err := ParseFlags()
+	if err != nil {
+		panic(err)
+	}
 
 	// Stop things when you ctl-c, and other ways, because.
 	// Cleanup stuff
@@ -251,8 +257,8 @@ func main() {
 			// Print out a message
 			log.Println("==> Stopping Gravitation Protocol")
 
-			if *saveFile != "" {
-				log.Printf("Saving data to file: %s", *saveFile)
+			if config.SaveFile != "" {
+				log.Printf("Saving data to file: %s", config.SaveFile)
 			}
 
 			// Cleanup GC
@@ -265,8 +271,8 @@ func main() {
 		}
 	}()
 
-	if *testFile != "" {
-		if testGravitation(*testFile) {
+	if config.TestFile != "" {
+		if testGravitation(config.TestFile) {
 			log.Println("Test successful!")
 		} else {
 			log.Println("Test failed.")
@@ -274,7 +280,7 @@ func main() {
 	} else {
 		profile := []string{"test", "test2", "test3"}
 		orbit := []Body{}
-		gravitationRendezvous(profile, orbit)
+		gravitationRendezvous(config, profile, orbit)
 	}
 
 }
