@@ -8,9 +8,13 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"os"
+	"os/signal"
 	"reflect"
+	"runtime"
 	"sort"
 	"sync"
+	"syscall"
 	"time"
 
 	libp2p "github.com/libp2p/go-libp2p"
@@ -224,6 +228,8 @@ Usage:
   - runs a gravitation protocol test with given test file 
 `
 
+// Somewhere remind people to close with CTRL-C because
+// You can do cleanup there
 func main() {
 	// flag.Usage = func() {
 	// 	fmt.Println(help)
@@ -232,7 +238,32 @@ func main() {
 
 	// // Parse some flags
 	testFile := flag.String("t", "", "Test File")
+	saveFile := flag.String("save", "", "File to save data.")
 	flag.Parse()
+
+	// Stop things when you ctl-c, and other ways, because.
+	// Cleanup stuff
+	term := make(chan os.Signal)
+	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		select {
+		case <-term:
+			// Print out a message
+			log.Println("==> Stopping Gravitation Protocol")
+
+			if *saveFile != "" {
+				log.Printf("Saving data to file: %s", *saveFile)
+			}
+
+			// Cleanup GC
+			runtime.GC()
+
+			// Handle other specific stuff like closing HTTP sockets
+			// that may persist
+			os.Exit(1)
+
+		}
+	}()
 
 	if *testFile != "" {
 		if testGravitation(*testFile) {
