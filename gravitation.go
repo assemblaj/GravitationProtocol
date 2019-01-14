@@ -41,7 +41,7 @@ type GravitationProtocol struct {
 	node        *Node                              // local host
 	requests    map[string]*p2p.GravitationRequest // used to access request data from response handlers
 	done        chan bool                          // only for demo purposes to stop main from terminating
-	gravData    GravitationData
+	gravData    *GravitationData
 	reqCallback gravitateReq
 	resCallback gravitateRes
 }
@@ -65,14 +65,12 @@ func gravitateIfEqualRes(profile []string, orbit []Body, remoteBody Body) bool {
 }
 
 // NewGravitationProtocol Create instance of protocol
-func NewGravitationProtocol(node *Node, done chan bool, profile []string, orbit []Body) *GravitationProtocol {
+func NewGravitationProtocol(node *Node, done chan bool, gravData *GravitationData) *GravitationProtocol {
 	p := &GravitationProtocol{
-		node:     node,
-		requests: make(map[string]*p2p.GravitationRequest),
-		done:     done,
-		gravData: GravitationData{
-			Orbit:   orbit,
-			Profile: profile},
+		node:        node,
+		requests:    make(map[string]*p2p.GravitationRequest),
+		done:        done,
+		gravData:    gravData,
 		reqCallback: gravitateIfEqualReq,
 		resCallback: gravitateIfEqualRes}
 
@@ -225,28 +223,35 @@ func (p *GravitationProtocol) onGravitationResponse(s inet.Stream) {
 }
 
 func (p *GravitationProtocol) readGravData(fname string) {
+	ReadGravData(fname, p.gravData)
+}
+
+func (p *GravitationProtocol) writeGravData(fname string) {
+	WriteGravData(fname, p.gravData)
+}
+
+func ReadGravData(fname string, gravData *GravitationData) {
 	b, err := ioutil.ReadFile(fname)
 	if err != nil {
 		log.Println("Error reading data from file. ")
 	}
-	err = json.Unmarshal(b, &p.gravData)
+	err = json.Unmarshal(b, gravData)
 	if err != nil {
 		log.Println("Error loading data. ")
 	}
 }
 
-func (p *GravitationProtocol) writeGravData(fname string) {
-	b, err := json.Marshal(p.gravData)
+func WriteGravData(fname string, gravData *GravitationData) {
+	b, err := json.Marshal(gravData)
 	if err != nil {
 		log.Println("Error converting to JSON. ")
 	}
-	log.Printf("%s", p.gravData)
+	log.Printf("%s", gravData)
 	err = ioutil.WriteFile(fname, b, 0644)
 	if err != nil {
 		log.Println("Error writing data to file. ")
 	}
 	log.Println("data written to file. ")
-
 }
 
 func (p *GravitationProtocol) inOrbit(peerID string) bool {

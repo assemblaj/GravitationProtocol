@@ -34,7 +34,7 @@ import (
 )
 
 // helper method - create a lib-p2p host to listen on a port
-func makeRandomNode(port int, done chan bool, profile []string, orbit []Body) *Node {
+func makeRandomNode(port int, done chan bool, gravData *GravitationData) *Node {
 	// Ignoring most errors for brevity
 	// See echo example for more details and better implementation
 	priv, _, _ := crypto.GenerateKeyPair(crypto.Secp256k1, 256)
@@ -46,7 +46,7 @@ func makeRandomNode(port int, done chan bool, profile []string, orbit []Body) *N
 		libp2p.DisableRelay(),
 	)
 
-	return NewNode(host, done, profile, []Body{})
+	return NewNode(host, done, gravData)
 }
 
 type TestData struct {
@@ -78,8 +78,10 @@ func testGravitation(fname string) bool {
 		port := rand.Intn(100) + 10000
 
 		if _, exist := hostMap[k]; !exist {
-			profile := time.Now().Format("20060102150405")
-			hostMap[k] = makeRandomNode(port, done, []string{profile}, []Body{})
+			profile := []string{time.Now().Format("20060102150405")}
+
+			gravData := GravitationData{Profile: profile}
+			hostMap[k] = makeRandomNode(port, done, &gravData)
 		}
 		for _, peer := range v {
 
@@ -87,19 +89,19 @@ func testGravitation(fname string) bool {
 				rand.Seed(666)
 				newPort := port + 1
 
-				testProfile := []string{"test"}
+				testGravData := GravitationData{Profile: []string{"test"}, Orbit: []Body{}}
 				inOrbit := false
 
 				// if part of orbit
 				for _, hostName := range testConfig.TestOrbit {
 					if hostName == peer {
 						inOrbit = true
-						testProfile = hostMap[k].gravData.Profile
+						testGravData.Profile = hostMap[k].gravData.Profile
 					}
 				}
 
 				// Creates host and creates peer relationship between it and the root peer
-				hostMap[peer] = makeRandomNode(newPort, done, testProfile, []Body{})
+				hostMap[peer] = makeRandomNode(newPort, done, &testGravData)
 				if inOrbit {
 					orbitPeerIds = append(orbitPeerIds, hostMap[peer].ID().String())
 				}
@@ -132,7 +134,7 @@ func testGravitation(fname string) bool {
 	return reflect.DeepEqual(actualOrbitIds, orbitPeerIds)
 }
 
-func gravitationRendezvous(config Config, profile []string, orbit []Body) {
+func gravitationRendezvous(config Config, gravData *GravitationData) { //profile []string, orbit []Body) {
 	done := make(chan bool, 1)
 
 	ctx := context.Background()
@@ -153,10 +155,7 @@ func gravitationRendezvous(config Config, profile []string, orbit []Body) {
 		panic(err)
 	}
 
-	node := NewNode(host, done, profile, []Body{})
-	if config.LoadFile != "" {
-		node.readGravData(config.LoadFile)
-	}
+	node := NewNode(host, done, gravData)
 
 	// ----------------------------
 	// Start a DHT, for use in peer discovery. We can't just make a new DHT
@@ -232,19 +231,31 @@ Usage:
   - runs a gravitation protocol test with given test file 
 `
 
-// Somewhere remind people to close with CTRL-C because
-// You can do cleanup there
 func main() {
-	// flag.Usage = func() {
-	// 	fmt.Println(help)
-	// 	flag.PrintDefaults()
-	// }
-
 	// // Parse some flags
-
 	config, err := ParseFlags()
 	if err != nil {
 		panic(err)
+	}
+
+	var gravData GravitationData
+
+	if config.LoadFile != "" {
+		ReadGravData(config.LoadFile, &gravData)
+	} else {
+		profile := []string{"test", "test2", "test3"}
+		orbit := []Body{}
+		gravData = GravitationData{Profile: profile, Orbit: orbit}
+	}
+
+	if config.TestFile != "" {
+		if testGravitation(config.TestFile) {
+			log.Println("Test successful!")
+		} else {
+			log.Println("Test failed.")
+		}
+	} else {
+		gravitationRendezvous(config, &gravData)
 	}
 
 	// Stop things when you ctl-c, and other ways, because.
@@ -259,6 +270,7 @@ func main() {
 
 			if config.SaveFile != "" {
 				log.Printf("Saving data to file: %s", config.SaveFile)
+				WriteGravData(config.SaveFile, &gravData)
 			}
 
 			// Cleanup GC
@@ -267,20 +279,7 @@ func main() {
 			// Handle other specific stuff like closing HTTP sockets
 			// that may persist
 			os.Exit(1)
-
 		}
 	}()
-
-	if config.TestFile != "" {
-		if testGravitation(config.TestFile) {
-			log.Println("Test successful!")
-		} else {
-			log.Println("Test failed.")
-		}
-	} else {
-		profile := []string{"test", "test2", "test3"}
-		orbit := []Body{}
-		gravitationRendezvous(config, profile, orbit)
-	}
 
 }
