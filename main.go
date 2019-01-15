@@ -215,8 +215,6 @@ func gravitationRendezvous(config Config, gravData *GravitationData) { //profile
 		log.Println("Connecting to:", peer)
 		//stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
 		node.GravitationPeerID(peer.ID)
-
-		log.Println("Connected to:", peer)
 	}
 
 	select {}
