@@ -138,15 +138,13 @@ func gravitationRendezvous(config Config, gravData *GravitationData) { //profile
 	done := make(chan bool, 1)
 
 	ctx := context.Background()
-	//host := makeRandomNode(port, done, []string{profile}, []Body{})
 
 	// libp2p.New constructs a new libp2p Host. Other options can be added
 	// here.
 	priv, _, _ := crypto.GenerateKeyPair(crypto.Secp256k1, 256)
-	//listen, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port))
 
 	host, err := libp2p.New(
-		context.Background(),
+		ctx,
 		libp2p.ListenAddrs([]multiaddr.Multiaddr(config.ListenAddresses)...),
 		libp2p.Identity(priv),
 		libp2p.DisableRelay(),
@@ -213,8 +211,8 @@ func gravitationRendezvous(config Config, gravData *GravitationData) { //profile
 		log.Println("Found peer:", peer)
 
 		log.Println("Connecting to:", peer)
-		//stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
 		node.GravitationPeerID(peer.ID)
+		log.Println("Connected to:", peer)
 	}
 
 	select {}
