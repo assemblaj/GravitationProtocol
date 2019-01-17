@@ -227,6 +227,13 @@ Usage:
   - runs a gravitation protocol test with given test file 
 `
 
+/**
+	TODO:
+	- Make sure that that SITERM handling actually works
+	- Add some way to read params or a file for profile
+	- Should do rendezvous by default with an option to set it
+	- ofcourse update readme with all the changes, etc etc
+**/
 func main() {
 	// // Parse some flags
 	config, err := ParseFlags()
@@ -235,24 +242,6 @@ func main() {
 	}
 
 	var gravData GravitationData
-
-	if config.LoadFile != "" {
-		ReadGravData(config.LoadFile, &gravData)
-	} else {
-		profile := []string{"test", "test2", "test3"}
-		orbit := []Body{}
-		gravData = GravitationData{Profile: profile, Orbit: orbit}
-	}
-
-	if config.TestFile != "" {
-		if testGravitation(config.TestFile) {
-			log.Println("Test successful!")
-		} else {
-			log.Println("Test failed.")
-		}
-	} else {
-		gravitationRendezvous(config, &gravData)
-	}
 
 	// Stop things when you ctl-c, and other ways, because.
 	// Cleanup stuff
@@ -277,5 +266,28 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+
+	if config.LoadFile != "" {
+		ReadGravData(config.LoadFile, &gravData)
+	} else {
+		var profile []string
+		if config.Profile != nil {
+			profile = config.Profile
+		} else {
+			profile = []string{"test", "test2", "test3"}
+		}
+		orbit := []Body{}
+		gravData = GravitationData{Profile: profile, Orbit: orbit}
+	}
+
+	if config.TestFile != "" {
+		if testGravitation(config.TestFile) {
+			log.Println("Test successful!")
+		} else {
+			log.Println("Test failed.")
+		}
+	} else {
+		gravitationRendezvous(config, &gravData)
+	}
 
 }

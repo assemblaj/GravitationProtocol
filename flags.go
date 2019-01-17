@@ -60,11 +60,12 @@ type Config struct {
 	TestFile         string
 	SaveFile         string
 	LoadFile         string
+	Profile          []string
 }
 
 func ParseFlags() (Config, error) {
 	config := Config{}
-	flag.StringVar(&config.RendezvousString, "rendezvous", "meet me here",
+	flag.StringVar(&config.RendezvousString, "rendezvous", "gravitation",
 		"Unique string to identify group of nodes. Share this with your friends to let them connect with you")
 	flag.Var(&config.BootstrapPeers, "peer", "Adds a peer multiaddress to the bootstrap list")
 	flag.Var(&config.ListenAddresses, "listen", "Adds a multiaddress to the listen list")
@@ -72,8 +73,12 @@ func ParseFlags() (Config, error) {
 	flag.StringVar(&config.TestFile, "test", "", "Test File")
 	flag.StringVar(&config.SaveFile, "save", "", "File to save data to.")
 	flag.StringVar(&config.LoadFile, "load", "", "File to load data from.")
-
+	profileString := flag.String("profile", "", "Double-quoted, space separated list of profile values. ")
 	flag.Parse()
+
+	if *profileString != "" {
+		config.Profile = strings.Split(*profileString, " ")
+	}
 
 	if len(config.BootstrapPeers) == 0 {
 		bootstrapPeerAddrs, err := StringsToAddrs(defaultBootstrapAddrStrings)
