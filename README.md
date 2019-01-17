@@ -11,9 +11,13 @@ Clone the project
 make deps 
 go build 
 
-./GravitationProtocol    Runs test with test file "test.json"  
-./GravitationProtocol -t [filename]  Runs test with specified test file   
 
-## TODO:
-- Diiscovery
--  proper deamon for sending requests to specific peers,  import/export  orbits, etc
+./GravitationProtocol -listen /ip4/127.0.0.1/tcp/{port}         : Runs Gravitation with specific multiadresss and default profile
+./GravitationProtocol -listen /ip4/127.0.0.1/tcp/{another port} : To create other peer 
+
+
+## Relavant Flags:
+- save [filename]  : Saves Gravitation Data to file after program is closed [Ctrl+C] 
+- load [filename] : Loads gravitation data from file 
+- profile  "test1 test2 test3 test4"  : Double-quoted, space separated list of profile values. 
+- test [filename]:  Runs test with specified test file
