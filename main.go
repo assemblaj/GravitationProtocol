@@ -1,10 +1,3 @@
-/*
-   TODO:
-   - Save / Load feature
-	 - flags
-	 - load on startup
-	 - save on quit (CTRL-C / SIGTERM)
-*/
 package main
 
 import (
@@ -227,13 +220,6 @@ Usage:
   - runs a gravitation protocol test with given test file 
 `
 
-/**
-	TODO:
-	- Make sure that that SITERM handling actually works
-	- Add some way to read params or a file for profile
-	- Should do rendezvous by default with an option to set it
-	- ofcourse update readme with all the changes, etc etc
-**/
 func main() {
 	// // Parse some flags
 	config, err := ParseFlags()
